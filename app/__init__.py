@@ -14,4 +14,7 @@ def create_app(config_class="config.Config") -> Flask:
     from .routes import main
     app.register_blueprint(main)
 
+    with app.app_context():
+        db.create_all()
+
     return app
