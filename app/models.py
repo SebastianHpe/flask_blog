@@ -1,16 +1,28 @@
 from datetime import datetime, UTC
-from . import db
+from . import db, bcrypt
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default="default.jpg")
-    password = db.Column(db.String(60), nullable=False)
+    password_hash = db.Column(db.String(60), nullable=False)
     posts = db.relationship("Post", backref="author", lazy=True)
 
     def __repr__(self) -> str:
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+    
+    @property
+    def password(self) -> None:
+        raise AttributeError("Password is not a readable attribute.")
+    
+    @password.setter
+    def password(self, plain_password: str) -> None:
+        self.password_hash = bcrypt.generate_password_hash(plain_password).decode("utf-8")
+
+    def check_password(self, plain_password: str) -> bool:
+        return bcrypt.check_password_hash(self.password_hash, plain_password)
+        
     
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
