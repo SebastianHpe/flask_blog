@@ -1,9 +1,11 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
+migrate = Migrate()
 
 def create_app(config_class="config.Config") -> Flask:
     app = Flask(__name__)
@@ -11,7 +13,8 @@ def create_app(config_class="config.Config") -> Flask:
 
     db.init_app(app)
     bcrypt.init_app(app)
-    
+    migrate.init_app(app, db)
+
     from . import models  # noqa: F401  # Ensure models are registered
 
     from .routes import main
