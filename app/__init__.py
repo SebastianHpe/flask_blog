@@ -9,7 +9,7 @@ def create_app(config_class="config.Config") -> Flask:
 
     db.init_app(app)
 
-    from . import models
+    from . import models  # noqa: F401  # Ensure models are registered
 
     from .routes import main
     app.register_blueprint(main)
