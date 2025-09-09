@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, url_for, flash, redirect, request
 from flask_login import login_user, logout_user, current_user, login_required
-from .forms import RegistrationForm, LoginForm
+from .forms import RegistrationForm, LoginForm, UpdateAccountForm
 from . import db
 from .models import User
 
@@ -52,7 +52,18 @@ def home():
 def about():
     return render_template("about.html", title="About")
 
-@main.route("/account")
+@main.route("/account", methods=["POST", "GET"])
 @login_required
 def account():
-    return render_template("account.html", title="Account")
+    form = UpdateAccountForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        db.session.commit()
+        flash("Your account has been updated!", "success")
+        return redirect(url_for("main.account"))
+    elif request.method == "GET":
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+    image_file = url_for("static", filename="profile_pics/" + current_user.image_file)
+    return render_template("account.html", title="Account", image_file=image_file, form=form)
