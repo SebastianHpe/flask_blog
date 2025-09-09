@@ -13,7 +13,7 @@ def register():
         return redirect(url_for("main.home"))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(username=form.username.data, email=form.email.data.lower())
         user.password = form.password.data  # the setter hashes the password
 
         db.session.add(user)
@@ -29,7 +29,7 @@ def login():
         return redirect(url_for("main.home"))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data.lower()).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get("next")
@@ -62,7 +62,7 @@ def account():
     form = UpdateAccountForm()
     if form.validate_on_submit():
         current_user.username = form.username.data
-        current_user.email = form.email.data
+        current_user.email = form.email.data.lower()
         db.session.commit()
         flash("Your account has been updated!", "success")
         return redirect(url_for("main.account"))
