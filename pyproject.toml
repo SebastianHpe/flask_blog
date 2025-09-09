@@ -12,10 +12,18 @@ dependencies = [
     "flask-migrate>=4.1.0",
     "flask-sqlalchemy>=3.1.1",
     "flask-wtf>=1.2.2",
+    "isort>=6.0.1",
     "pillow>=11.3.0",
 ]
 [tool.ruff]
 exclude = [
+    ".venv",        # virtual environment
+    "migrations",   # Flask/SQLAlchemy migrations
+    "__pycache__",  
+    "tests/helpers", # custom test helper dir
+]
+[tool.isort]
+skip = [
     ".venv",        # virtual environment
     "migrations",   # Flask/SQLAlchemy migrations
     "__pycache__",  
