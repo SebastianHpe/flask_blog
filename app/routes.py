@@ -1,8 +1,12 @@
+import os
+import secrets
 from flask import Blueprint, render_template, url_for, flash, redirect, request
 from flask_login import login_user, logout_user, current_user, login_required
+from flask import current_app
 from .forms import RegistrationForm, LoginForm, UpdateAccountForm
 from . import db
 from .models import User
+from PIL import Image
 
 main = Blueprint("main", __name__)
 
@@ -55,12 +59,27 @@ def home():
 def about():
     return render_template("about.html", title="About")
 
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_filename = random_hex + f_ext
+    picture_path = os.path.join(current_app.root_path, "static/profile_pics", picture_filename)
+    output_size = (125, 125)
+    resized_image = Image.open(form_picture)
+    resized_image.thumbnail(output_size)
+
+    resized_image.save(picture_path)
+    
+    return picture_filename
 
 @main.route("/account", methods=["POST", "GET"])
 @login_required
 def account():
     form = UpdateAccountForm()
     if form.validate_on_submit():
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            current_user.image_file = picture_file
         current_user.username = form.username.data
         current_user.email = form.email.data.lower()
         db.session.commit()
