@@ -2,10 +2,12 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
+from flask_login import LoginManager
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 migrate = Migrate()
+login_manager = LoginManager()
 
 def create_app(config_class="config.Config") -> Flask:
     app = Flask(__name__)
@@ -14,7 +16,8 @@ def create_app(config_class="config.Config") -> Flask:
     db.init_app(app)
     bcrypt.init_app(app)
     migrate.init_app(app, db)
-
+    login_manager.init_app(app)
+    
     from . import models  # noqa: F401  # Ensure models are registered
 
     from .routes import main
