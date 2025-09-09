@@ -1,6 +1,8 @@
-from datetime import datetime, UTC
-from . import db, bcrypt, login_manager
+from datetime import UTC, datetime
+
 from flask_login import UserMixin
+
+from . import bcrypt, db, login_manager
 
 
 @login_manager.user_loader

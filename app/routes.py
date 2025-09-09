@@ -1,12 +1,14 @@
 import os
 import secrets
-from flask import Blueprint, render_template, url_for, flash, redirect, request
-from flask_login import login_user, logout_user, current_user, login_required
-from flask import current_app
-from .forms import RegistrationForm, LoginForm, UpdateAccountForm
-from . import db
-from .models import User
+
+from flask import (Blueprint, current_app, flash, redirect, render_template,
+                   request, url_for)
+from flask_login import current_user, login_required, login_user, logout_user
 from PIL import Image
+
+from . import db
+from .forms import LoginForm, RegistrationForm, UpdateAccountForm
+from .models import User
 
 main = Blueprint("main", __name__)
 
