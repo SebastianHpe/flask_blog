@@ -10,10 +10,6 @@ main = Blueprint("main", __name__)
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        existing_user = User.query.filter_by(email=form.email.data).first()
-        if existing_user:
-            flash("Email already registered.", "danger")
-            return redirect(url_for("main.register"))
         user = User(username=form.username.data, email=form.email.data)
         user.password = form.password.data # the setter hashes the password
 
