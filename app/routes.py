@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, url_for, flash, redirect
-from flask_login import login_user, logout_user, current_user
+from flask import Blueprint, render_template, url_for, flash, redirect, request
+from flask_login import login_user, logout_user, current_user, login_required
 from .forms import RegistrationForm, LoginForm
 from . import db
 from .models import User
@@ -32,8 +32,8 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
-            flash("You have been logged in!", "success")
-            return redirect(url_for("main.home"))
+            next_page = request.args.get("next")
+            return redirect(next_page) if next_page else redirect(url_for("main.home"))
         else:
             flash("Login unsuccessful. Please check email and password.", "danger")
     return render_template("login.html", title="Login", form=form)
@@ -51,3 +51,8 @@ def home():
 @main.route("/about")
 def about():
     return render_template("about.html", title="About")
+
+@main.route("/account")
+@login_required
+def account():
+    return render_template("account.html", title="Account")
