@@ -14,7 +14,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)
-        user.password = form.password.data # the setter hashes the password
+        user.password = form.password.data  # the setter hashes the password
 
         db.session.add(user)
         db.session.commit()
@@ -38,19 +38,23 @@ def login():
             flash("Login unsuccessful. Please check email and password.", "danger")
     return render_template("login.html", title="Login", form=form)
 
+
 @main.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for("main.home"))
+
 
 @main.route("/")
 @main.route("/home")
 def home():
     return render_template("home.html", title="Home")
 
+
 @main.route("/about")
 def about():
     return render_template("about.html", title="About")
+
 
 @main.route("/account", methods=["POST", "GET"])
 @login_required
@@ -66,4 +70,6 @@ def account():
         form.username.data = current_user.username
         form.email.data = current_user.email
     image_file = url_for("static", filename="profile_pics/" + current_user.image_file)
-    return render_template("account.html", title="Account", image_file=image_file, form=form)
+    return render_template(
+        "account.html", title="Account", image_file=image_file, form=form
+    )

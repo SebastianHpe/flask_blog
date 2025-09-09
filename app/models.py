@@ -2,9 +2,11 @@ from datetime import datetime, UTC
 from . import db, bcrypt, login_manager
 from flask_login import UserMixin
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,23 +18,27 @@ class User(db.Model, UserMixin):
 
     def __repr__(self) -> str:
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
-    
+
     @property
     def password(self) -> None:
         raise AttributeError("Password is not a readable attribute.")
-    
+
     @password.setter
     def password(self, plain_password: str) -> None:
-        self.password_hash = bcrypt.generate_password_hash(plain_password).decode("utf-8")
+        self.password_hash = bcrypt.generate_password_hash(plain_password).decode(
+            "utf-8"
+        )
 
     def check_password(self, plain_password: str) -> bool:
         return bcrypt.check_password_hash(self.password_hash, plain_password)
-        
-    
+
+
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    date_posted = db.Column(
+        db.DateTime, nullable=False, default=lambda: datetime.now(UTC)
+    )
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
