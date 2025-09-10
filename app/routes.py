@@ -111,6 +111,17 @@ def update_post(post_id):
         form.content.data = post.content
     return render_template("create_post.html", title="Update Post", form=form)
 
+@main.route("/post/<int:post_id>/delete", methods=["POST"])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    db.session.delete(post)
+    db.session.commit()
+    flash("Post has been deleted", "success")
+    return redirect(url_for("main.home", post_id=post.id))
+
 
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
