@@ -25,7 +25,7 @@ main = Blueprint("main", __name__)
 @main.route("/home")
 def home():
     page = request.args.get("page", default=1, type=int)
-    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=2)
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
     return render_template("home.html", title="Home", posts=posts)
 
 
@@ -101,9 +101,9 @@ def update_post(post_id):
         abort(403)
     form = PostForm()
     if form.validate_on_submit():
-        post.title=form.title.data
-        post.content=form.content.data
-    
+        post.title = form.title.data
+        post.content = form.content.data
+
         db.session.commit()
         flash("Post has been updated", "success")
         return redirect(url_for("main.post", post_id=post.id))
@@ -111,6 +111,7 @@ def update_post(post_id):
         form.title.data = post.title
         form.content.data = post.content
     return render_template("create_post.html", title="Update Post", form=form)
+
 
 @main.route("/post/<int:post_id>/delete", methods=["POST"])
 @login_required
@@ -160,3 +161,15 @@ def account():
     return render_template(
         "account.html", title="Account", image_file=image_file, form=form
     )
+
+
+@main.route("/user/<string:username>")
+def user_posts(username):
+    page = request.args.get("page", default=1, type=int)
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = (
+        Post.query.filter_by(author=user)
+        .order_by(Post.date_posted.desc())
+        .paginate(page=page, per_page=5)
+    )
+    return render_template("user_posts.html", title="Home", posts=posts, user=user)
