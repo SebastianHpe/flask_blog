@@ -1,15 +1,24 @@
 {% extends "layout.html" %}
 {% block content %}
     {% for post in posts %}
-        <article class="media content-section">
-            <div class="media-body">
+    <article class="content-section">
+        <div class="row g-1">
+            <!-- Column 1: Image -->
+            <div class="col-auto">
+                <img class="rounded-circle article-img"
+                    src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+            </div>
+
+            <!-- Column 2: Text -->
+            <div class="col">
                 <div class="article-metadata">
-                <a class="mr-2" href="#">{{ post.author }}</a>
-                <small class="text-muted">{{ post.date_posted }}</small>
+                    <a class="me-2" href="#">{{ post.author.username }}</a>
+                    <small class="text-muted">{{ post.date_posted|formatdate }}</small>
                 </div>
                 <h2><a class="article-title" href="#">{{ post.title }}</a></h2>
                 <p class="article-content">{{ post.content }}</p>
             </div>
-        </article>
+        </div>
+    </article>
     {% endfor %}
 {% endblock content%}

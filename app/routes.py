@@ -7,8 +7,8 @@ from flask_login import current_user, login_required, login_user, logout_user
 from PIL import Image
 
 from . import db
-from .forms import LoginForm, RegistrationForm, UpdateAccountForm
-from .models import User
+from .forms import LoginForm, RegistrationForm, UpdateAccountForm, PostForm
+from .models import User, Post
 
 main = Blueprint("main", __name__)
 
@@ -54,12 +54,26 @@ def logout():
 @main.route("/")
 @main.route("/home")
 def home():
-    return render_template("home.html", title="Home")
+    posts = Post.query.order_by(Post.date_posted.desc()).all()
+    return render_template("home.html", title="Home", posts=posts)
 
 
 @main.route("/about")
 def about():
     return render_template("about.html", title="About")
+
+@main.route("/post/new", methods=["POST", "GET"])
+@login_required
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash("Post has been created", "success")
+        return redirect(url_for("main.home"))
+    return render_template("create_post.html", title="New Post", form=form)
+
 
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
