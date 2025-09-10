@@ -1,8 +1,16 @@
 import os
 import secrets
 
-from flask import (Blueprint, current_app, flash, redirect, render_template,
-                   request, url_for)
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    abort,
+)
 from flask_login import current_user, login_required, login_user, logout_user
 from PIL import Image
 
@@ -62,12 +70,15 @@ def home():
 def about():
     return render_template("about.html", title="About")
 
+
 @main.route("/post/new", methods=["POST", "GET"])
 @login_required
 def new_post():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        post = Post(
+            title=form.title.data, content=form.content.data, author=current_user
+        )
         db.session.add(post)
         db.session.commit()
         flash("Post has been created", "success")
@@ -75,18 +86,47 @@ def new_post():
     return render_template("create_post.html", title="New Post", form=form)
 
 
+@main.route("/post/<int:post_id>")
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template("post.html", title=post.title, post=post)
+
+
+@main.route("/post/<int:post_id>/update", methods=["POST", "GET"])
+@login_required
+def update_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.title=form.title.data
+        post.content=form.content.data
+    
+        db.session.commit()
+        flash("Post has been updated", "success")
+        return redirect(url_for("main.post", post_id=post.id))
+    elif request.method == "GET":
+        form.title.data = post.title
+        form.content.data = post.content
+    return render_template("create_post.html", title="Update Post", form=form)
+
+
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_filename = random_hex + f_ext
-    picture_path = os.path.join(current_app.root_path, "static/profile_pics", picture_filename)
+    picture_path = os.path.join(
+        current_app.root_path, "static/profile_pics", picture_filename
+    )
     output_size = (125, 125)
     resized_image = Image.open(form_picture)
     resized_image.thumbnail(output_size)
 
     resized_image.save(picture_path)
-    
+
     return picture_filename
+
 
 @main.route("/account", methods=["POST", "GET"])
 @login_required
