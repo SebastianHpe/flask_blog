@@ -21,6 +21,13 @@ from .models import User, Post
 main = Blueprint("main", __name__)
 
 
+@main.route("/")
+@main.route("/home")
+def home():
+    posts = Post.query.order_by(Post.date_posted.desc()).all()
+    return render_template("home.html", title="Home", posts=posts)
+
+
 @main.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
@@ -57,13 +64,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("main.home"))
-
-
-@main.route("/")
-@main.route("/home")
-def home():
-    posts = Post.query.order_by(Post.date_posted.desc()).all()
-    return render_template("home.html", title="Home", posts=posts)
 
 
 @main.route("/about")
