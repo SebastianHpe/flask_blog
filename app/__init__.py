@@ -28,7 +28,6 @@ def create_app(config_class="config.Config") -> Flask:
 
     app.register_blueprint(main)
 
-
     @app.template_filter("formatdate")
     def format_date(value, format="%B %d, %Y"):
         return value.strftime(format)

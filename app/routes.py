@@ -3,20 +3,20 @@ import secrets
 
 from flask import (
     Blueprint,
+    abort,
     current_app,
     flash,
     redirect,
     render_template,
     request,
     url_for,
-    abort,
 )
 from flask_login import current_user, login_required, login_user, logout_user
 from PIL import Image
 
 from . import db
-from .forms import LoginForm, RegistrationForm, UpdateAccountForm, PostForm
-from .models import User, Post
+from .forms import LoginForm, PostForm, RegistrationForm, UpdateAccountForm
+from .models import Post, User
 
 main = Blueprint("main", __name__)
 
