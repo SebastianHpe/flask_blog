@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
-
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from flask_login import UserMixin
+from flask import current_app
 
 from . import bcrypt, db, login_manager
 
@@ -20,6 +21,20 @@ class User(db.Model, UserMixin):
 
     def __repr__(self) -> str:
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+
+    def get_reset_token(self) -> str:
+        s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+        return s.dumps({"user_id": self.id})
+
+    @staticmethod
+    def verify_reset_token(token: str, max_age: int = 1800) -> "User | None":
+        s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+        try:
+            data = s.loads(token, max_age=max_age)
+            user_id = data["user_id"]
+        except (BadSignature, SignatureExpired):
+            return None
+        return db.session.get(User, user_id)
 
     @property
     def password(self) -> None:

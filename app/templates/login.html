@@ -38,12 +38,12 @@
                 {{ form.remember.label(class="form-check-label") }}
             </div>
         </fieldset>
-        <div class="form-group">
-            {{ form.submit(class="btn btn-outline-info") }}
+        <div class="form-group d-flex align-items-center">
+            {{ form.submit(class="btn btn-outline-info me-2") }}
+            <small class="text-muted">
+                <a href="{{ url_for('main.reset_request') }}">Forgot Password?</a>
+            </small>
         </div>
-        <small class="text-muted ml-2">
-            <a href="#">Forgot Password?</a>
-        </small>
     </form>
 </div>
 <div class="border-top pt-3">
