@@ -1,11 +1,10 @@
-import os
-
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flaskblog.config import Config
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -14,14 +13,9 @@ login_manager = LoginManager()
 mail = Mail()
 
 
-def create_app(config_class="config.Config") -> Flask:
+def create_app(config_class=Config) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config_class)
-    app.config["MAIL_SERVER"] = "smtp.googlemail.com"
-    app.config["MAIL_PORT"] = 587
-    app.config["MAIL_USE_TLS"] = True
-    app.config["MAIL_USERNAME"] = os.environ.get("EMAIL_USER")
-    app.config["MAIL_PASSWORD"] = os.environ.get("EMAIL_PASS")
 
     db.init_app(app)
     bcrypt.init_app(app)
