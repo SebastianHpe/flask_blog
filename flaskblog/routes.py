@@ -16,8 +16,8 @@ from flask_mail import Message
 from PIL import Image
 from sqlalchemy import select
 
-from . import db, mail
-from .forms import (
+from flaskblog import db, mail
+from flaskblog.forms import (
     LoginForm,
     PostForm,
     RegistrationForm,

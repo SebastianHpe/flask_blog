@@ -4,7 +4,7 @@ from flask import current_app
 from flask_login import UserMixin
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
-from . import bcrypt, db, login_manager
+from flaskblog import bcrypt, db, login_manager
 
 
 @login_manager.user_loader
