@@ -29,14 +29,18 @@ def create_app(config_class="config.Config") -> Flask:
     mail.init_app(app)
 
     login_manager.init_app(app)
-    login_manager.login_view = "main.login"
+    login_manager.login_view = "users.login"
     login_manager.login_message = "Please log in to access this page."
     login_manager.login_message_category = "info"
 
-    from . import models  # noqa: F401  # Ensure models are registered
-    from .routes import main
+    from flaskblog import models  # noqa: F401  # Ensure models are registered
+    from flaskblog.main.routes import main
+    from flaskblog.users.routes import users
+    from flaskblog.posts.routes import posts
 
     app.register_blueprint(main)
+    app.register_blueprint(posts)
+    app.register_blueprint(users)
 
     @app.template_filter("formatdate")
     def format_date(value, format="%B %d, %Y"):
