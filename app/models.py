@@ -1,7 +1,8 @@
 from datetime import UTC, datetime
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from flask_login import UserMixin
+
 from flask import current_app
+from flask_login import UserMixin
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from . import bcrypt, db, login_manager
 

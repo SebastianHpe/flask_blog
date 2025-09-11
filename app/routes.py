@@ -14,15 +14,16 @@ from flask import (
 from flask_login import current_user, login_required, login_user, logout_user
 from flask_mail import Message
 from PIL import Image
+from sqlalchemy import select
 
 from . import db, mail
 from .forms import (
     LoginForm,
     PostForm,
     RegistrationForm,
-    UpdateAccountForm,
     RequestResetForm,
     ResetPasswordForm,
+    UpdateAccountForm,
 )
 from .models import Post, User
 
@@ -59,7 +60,8 @@ def login():
         return redirect(url_for("main.home"))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower()).first()
+        stmt = select(User).filter_by(email=form.email.data.lower())
+        user = db.session.execute(stmt).scalar_one_or_none()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get("next")
@@ -175,17 +177,15 @@ def account():
 def user_posts(username):
     page = request.args.get("page", default=1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
-    posts = (
-        Post.query.filter_by(author=user)
-        .order_by(Post.date_posted.desc())
-        .paginate(page=page, per_page=5)
-    )
+    posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
     return render_template("user_posts.html", title="Home", posts=posts, user=user)
 
 
 def send_reset_email(user):
     token = user.get_reset_token()
-    msg = Message("Password Reset Request", sender="noreply@demo.com", recipients=[user.email])
+    msg = Message(
+        "Password Reset Request", sender="noreply@demo.com", recipients=[user.email]
+    )
     msg.body = f"""To reset your password, visit the following link:
 {url_for("main.reset_token", token=token, _external=True)}
 
@@ -200,9 +200,13 @@ def reset_request():
         return redirect(url_for("main.home"))
     form = RequestResetForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower()).first()
+        user = db.session.execute(
+            db.select(User).filter_by(email=form.email.data.lower())
+        ).scalar_one_or_none()
         send_reset_email(user)
-        flash("An email has been sent with instructions to reset your password.", "info")
+        flash(
+            "An email has been sent with instructions to reset your password.", "info"
+        )
         return redirect(url_for("main.login"))
     return render_template("reset_request.html", title="Reset Password", form=form)
 
